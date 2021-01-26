@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+body {font-family: Arial;}
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+
+<h2>Instructor Dashboard</h2>
+<p>Click on the buttons inside the tabbed menu:</p>
+
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'Assignments')">Assignments</button>
+  <button class="tablinks" onclick="openTab(event, 'addAssignments')">Add Assignments</button>
+  <button class="tablinks" onclick="openTab(event, 'Submissions')">Submissions</button>
+</div>
+
+<div id="Assignments" class="tabcontent">
+  <h3 >Assignments</h3>
+  <table id="tabldata">
+    
+  </table>
+</div>
+
+<div id="addAssignments" class="tabcontent">
+    <form class="modal-content" method="POST" enctype="multipart/form-data" action="/addAssignmentApi">
+        <div class="container">
+          <h1>Add Assignment</h1>
+          <p>Please fill in this form to create an Assignment.</p>
+         
+          <hr>
+    
+          <label for="name"><b>Name</b></label>
+          <input type="text" placeholder="Enter Name" name="name" ><br><br>
+    
+          <input type="hidden"  name="instructor_id" value="<%=data.result[0].id %>">
+    
+          <label for="Question"><b>Question(Pdf Only)</b></label>
+          <input type="file" placeholder="choose Question file..()" name="assignment" ><br><br>
+     <label for="email"><b>Subjects-  </b></label>
+      <% data.subject.forEach(function(subject) { %>
+        <span><%=subject.name %></span>
+      <input type="checkbox" name="subject" value="<%=subject.id %>">
+      <% }) %> <br><br>
+      <label for="deadline"><b>Deadline</b></label>
+          <input type="date" placeholder="Deadline" name="deadline" ><br><br>
+    
+          <div class="clearfix">
+            <button type="submit" class="signupbtn">Add</button>
+          </div>
+        </div>
+      </form>
+</div>
+
+<div id="Submissions" class="tabcontent">
+  <h3>Submissions</h3>
+  <p>Submissions is the capital of Japan.</p>
+</div>
+
+<script>
+function openTab(evt, actionn) {
+    if(actionn=="Assignments")
+    {
+        $.ajax({
+            url: "listAssignmentApi",
+            type:'post',
+            data:{instructor_id:"<%=data.result[0].id %>"},
+         success: function(result){
+     var tbldata = "<tr><th>Name</th><th>Subject</th><th>Qestion</th><th>Deadline</th></tr>";
+         var data = result.data;
+    for(var i = 0;i<data.length;i++){
+        tbldata += "<tr><td>" + data[i].name + "</td><td>" + data[i].subject + "</td><td><a target='_blank' href='viewfile?fileName="+data[i].question_file+"'>View..</a></td><td>" + data[i].deadline + "</td></tr>";
+    }
+    console.log(tbldata);
+    $("#tabldata").html(tbldata);
+    }});
+    }
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(actionn).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+   
+</body>
+</html> 

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<style>
+    table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+body {font-family: Arial;}
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+</head>
+<body>
+
+<h2>Student Dashboard</h2>
+<p>Click on the buttons inside the tabbed menu:</p>
+
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'upcomingSubmissions')">Upcoming Submissions</button>
+  <button class="tablinks" onclick="openTab(event, 'submittedSubmissions')">Submitted Submissions</button>
+  <button class="tablinks" onclick="openTab(event, 'addsubmittedSubmissions')">Submit Submissions</button>
+
+</div>
+
+<div id="upcomingSubmissions" class="tabcontent">
+  <h3>upcomingSubmissions</h3>
+  <table id="tabldata">
+    
+</table>
+</div>
+
+<div id="submittedSubmissions" class="tabcontent">
+    <h3>Submissions</h3>
+    <table id="tabldatas">
+    
+    </table>
+</div>
+
+<div id="addsubmittedSubmissions" class="tabcontent">
+    <form class="modal-content" method="POST" enctype="multipart/form-data" action="/addSubmitAssignmentApi">
+        <div class="container">
+          <h1>Add submittedSubmissions</h1>
+          <p>Please fill in this form to create an Assignment.</p>
+         
+          <hr>
+    
+          <input type="hidden"  name="assignment_id" id="assignment_id" value=""><br><br>
+    
+          <input type="hidden"  name="student_id" id="student_id" value=""><br><br>
+    
+          <label for="Question"><b>Submmission(Pdf Only)</b></label>
+          <input type="file" placeholder="choose Question file..()" name="assignment" ><br><br>
+            <label for="email"><b>Subjects-  </b></label>
+          <div class="clearfix">
+            <button type="submit" class="signupbtn">Add</button>
+          </div>
+        </div>
+      </form>
+</div>
+
+<script>
+function openTab(evt, actionn, id) {
+
+    if(actionn=="upcomingSubmissions")
+    {
+        $.ajax({
+            url: "listAssignmentforStudentApi",
+            type:'post',
+            data:{subject:"<%=data.result[0].subject %>"},
+         success: function(result){
+     var tbldata = `<tr><th>Name</th><th>Subject</th><th>Qestion</th><th>Deadline</th><th>Submit Assignment</th></tr>`;
+         var data = result.data;
+    for(var i = 0;i<data.length;i++){
+        tbldata += `<tr><td>` + data[i].name + `</td><td>` + data[i].subject + `</td><td><a target='_blank' href='viewfile?fileName=`+data[i].question_file+`'>View..</a></td><td>` + data[i].deadline + `</td><td><button onclick="openTab(event, 'addsubmittedSubmissions',`+data[i].id+`)">Submit..</button></td></tr>`;
+    }
+    console.log(tbldata);
+    $("#tabldata").html(tbldata);
+    }});
+    }
+
+    if(actionn=="submittedSubmissions")
+    {
+        console.log("<%=data.result[0]%>");
+        $.ajax({
+            url: "listSubmmissionApi",
+            type:'post',
+            data:{student_id:"<%=data.result[0].id %>"},
+         success: function(result){
+     var tbldata = "<tr><th>Assignment Name</th><th>instructor_name</th><th>submited_file</th><th>Question_file</th><th>submited_time</th><th>Deadline</th></tr>";
+         var data = result.data;
+    for(var i = 0;i<data.length;i++){
+        tbldata += "<tr><td>" + data[i].assignment_name + "</td><td>" + data[i].instructor_name + "</td><td><a target='_blank' href='viewfile?fileName="+data[i].submited_file+"'>View..</a></td><td><a target='_blank' href='viewfile?fileName="+data[i].question_file+"'>View..</a></td><td>" + data[i].s_time + "</td><td>" + data[i].deadline + "</td></tr>";
+    }
+    console.log(tbldata);
+    $("#tabldatas").html(tbldata);
+    }});
+    }
+ if(id!=null)
+ {
+   
+  document.getElementById('assignment_id').value=id;
+      document.getElementById('student_id').value="<%=data.result[0].id %>";
+ }
+ 
+    var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(actionn).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+   
+</body>
+</html> 
