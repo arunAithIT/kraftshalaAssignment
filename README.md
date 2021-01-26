@@ -11,3 +11,5 @@ How to run -
 3-run command (npm install) on project directory.
 
 4-run command (NODE_ENV=development node app.js) project directory.
+
+5- open link in browser http://localhost:3200
